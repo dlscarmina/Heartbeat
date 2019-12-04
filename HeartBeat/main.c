@@ -1,21 +1,17 @@
 /*
  * HeartBeat.c
  *
- * Author : carmi
+ * Author: Carmina Jean delos Santos
  */ 
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#include "HeartMatrix.c"
 #include "Timer.c"
+#include "Pulse.c"
 
 #include "nokia5110.h"
 #include "nokia5110.c"
-
-#ifdef _SIMULATE_
-#include "simAVRHeader.h"
-#endif
 
 unsigned char inputA0 = 0x00;	// PORTA0 temporary char, pulse indicator
 unsigned char outputC = 0xFF;	// PORTC0 temporary char, 10s indicator
@@ -23,28 +19,8 @@ unsigned char outputC = 0xFF;	// PORTC0 temporary char, 10s indicator
 unsigned short timeCount = 0;	// Increments every 50ms
 unsigned short timeForPulseCount = 0;
 unsigned short timeForPulse = 0;
-unsigned char pulseCount = 0;	// Triggered by interrupt, reset every 5s
 
 unsigned char bpm = 0;
-
-void PulseOn() {
-	// Pin Change Mask 0 (PCMSK0) to A0
-	PCMSK0 |= 0x01;
-	
-	// Pin Change Interrupt Control Register (PCICR) to A
-	PCICR |= 0x01;
-	
-	// Enable global interrupts
-	SREG |= 0x80;	// 0x80: 1000000
-}
-
-void PulseISR() {
-	pulseCount++;
-}
-
-ISR(PCINT0_vect) {
-	PulseISR();
-}
 
 enum PulseStates {init, chill, pulse} pulseState;
 void showHeartBPM() {
@@ -86,16 +62,6 @@ void showHeartBPM() {
 	
 }
 
-void calculateBPM() {
-	timeCount++;
-	
-	if(timeCount >= 200) {	// 50ms * 200 == 10000ms == 10s
-		bpm = pulseCount * (6 / 2); // Divided by 2 because the rising and falling edge both trigger the pin change, so compensate
-		pulseCount = 0;
-		timeCount = 0;
-	}
-}
-
 void displayBPM(unsigned char newBPM) {
 	unsigned char digit;
 	
@@ -117,6 +83,16 @@ void displayBPM(unsigned char newBPM) {
 	nokia_lcd_set_cursor(0, 15);
 	nokia_lcd_write_char(digit + '0', 3);
 	nokia_lcd_render();
+}
+
+void calculateBPM() {
+	timeCount++;
+	
+	if(timeCount >= 200) {	// 50ms * 200 == 10000ms == 10s
+		bpm = pulseCount * (6 / 2); // Divided by 2 because the rising and falling edge both trigger the pin change, so compensate
+		pulseCount = 0;
+		timeCount = 0;
+	}
 }
 
 int main(void) {

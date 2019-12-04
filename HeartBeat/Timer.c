@@ -1,4 +1,5 @@
 #ifndef __TIMER_H__
+#define __TIMER_H__
 #endif
 
 volatile unsigned char TimerFlag = 0;
