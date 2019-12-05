@@ -5,4 +5,4 @@ Heart/Beat is a heart rate visualization device. The user straps a heart rate mo
 
 ## Links
 - [Project Report](https://docs.google.com/document/d/1cKJmL-W0_-mOH2tJg2c5_QyVpEDFmkg6NlJCNc07Pq8/edit?usp=sharing)
-- [Demo Video]()
+- [Demo Video](https://youtu.be/qVPJeB6yP0g)
